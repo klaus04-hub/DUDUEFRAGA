@@ -26,11 +26,35 @@ OPÇÃO 2 - DEPLOY NO RAILWAY (24/7 NA NUVEM):
    python-telegram-bot==20.7
    anthropic==0.39.0
 5. Crie arquivo "Procfile" com:
-   web: python bianca_bot_unificado.py
-6. No Railway, vá em Variables e adicione:
-   TELEGRAM_TOKEN = seu_token
-   ANTHROPIC_API_KEY = sua_chave
+   worker: python bianca_bot_unificado.py
+
+6. No Railway, configure:
+   
+   ⚙️ A) VARIÁVEIS (Variables):
+      Adicione estas 2 variáveis:
+      
+      Nome: TELEGRAM_TOKEN
+      Valor: seu_token_do_botfather
+      
+      Nome: ANTHROPIC_API_KEY
+      Valor: sua_chave_anthropic
+   
+   🚀 B) START COMMAND:
+      Vá em: Settings → Deploy → Start Command
+      Cole exatamente: python bianca_bot_unificado.py
+      Salve e faça Redeploy
+      
 7. Deploy automático!
+
+═══════════════════════════════════════════════════════════════════════════
+🚨 IMPORTANTE - COMANDO DE START PARA O RAILWAY:
+═══════════════════════════════════════════════════════════════════════════
+
+Copie este comando e cole no Railway (Settings → Deploy → Start Command):
+
+python bianca_bot_unificado.py
+
+═══════════════════════════════════════════════════════════════════════════
 
 OBTENDO AS CREDENCIAIS:
 - Telegram Token: https://t.me/BotFather → /newbot
@@ -705,46 +729,3 @@ if __name__ == "__main__":
     main()
 
 
-"""
-═══════════════════════════════════════════════════════════════════════════
-📝 ARQUIVOS EXTRAS NECESSÁRIOS PARA RAILWAY
-═══════════════════════════════════════════════════════════════════════════
-
-Se for fazer deploy no Railway, crie estes 3 arquivos na mesma pasta:
-
-1. requirements.txt
-───────────────────
-python-telegram-bot==20.7
-anthropic==0.39.0
-
-
-2. Procfile
-───────────
-web: python bianca_bot_unificado.py
-
-
-3. railway.json
-───────────────
-{
-  "$schema": "https://railway.app/railway.schema.json",
-  "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "python bianca_bot_unificado.py",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
-  }
-}
-
-
-PASSO A PASSO RAILWAY:
-1. Crie os 4 arquivos (este + os 3 acima)
-2. Faça upload no Railway ou conecte via GitHub
-3. Configure variáveis de ambiente:
-   - TELEGRAM_TOKEN
-   - ANTHROPIC_API_KEY
-4. Deploy automático!
-
-═══════════════════════════════════════════════════════════════════════════
-"""
