@@ -1,0 +1,10 @@
+# Dependências do Bot Bianca
+
+# Telegram
+python-telegram-bot==20.7
+
+# API da Anthropic (Claude)
+anthropic==0.39.0
+
+# Utilitários
+python-dotenv==1.0.0
