@@ -112,7 +112,7 @@ import anthropic
 # Para uso local: edite diretamente aqui
 # Para Railway: deixe "" e configure nas variáveis de ambiente
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+GROK_API_KEY = os.environ.get("GROK_API_KEY", "")
 
 # Se não usar variáveis de ambiente, descomente e configure abaixo:
 # TELEGRAM_TOKEN = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
