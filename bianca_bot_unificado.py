@@ -1,9 +1,9 @@
 """
 ═══════════════════════════════════════════════════════════════════════════
-🌙 BIANCA BOT - TELEGRAM + IA COMPLETO
+🌙 BIANCA BOT - TELEGRAM + IA COMPLETO (GROK/xAI)
 ═══════════════════════════════════════════════════════════════════════════
 
-Bot de Companhia Virtual com IA (Claude/Anthropic)
+Bot de Companhia Virtual com IA (Grok/xAI)
 Sistema de Assinatura Premium Integrado
 
 ARQUIVO ÚNICO - TUDO EM UM SÓ LUGAR!
@@ -13,20 +13,21 @@ ARQUIVO ÚNICO - TUDO EM UM SÓ LUGAR!
 ═══════════════════════════════════════════════════════════════════════════
 
 OPÇÃO 1 - LOCAL (SEU COMPUTADOR):
-1. Instale: pip install python-telegram-bot anthropic
-2. Configure os tokens abaixo (linhas 70-71)
-3. Execute: python bianca_bot_unificado.py
+1. Instale: pip install python-telegram-bot openai
+2. Configure os tokens abaixo (linhas 109-110)
+3. Execute: python bianca_bot_grok.py
 4. No Telegram, procure seu bot e digite /start
 
 OPÇÃO 2 - DEPLOY NO RAILWAY (24/7 NA NUVEM):
 1. Crie conta no Railway (railway.app)
 2. New Project → Empty Project
-3. Faça upload deste arquivo (bianca_bot_unificado.py)
+3. Faça upload deste arquivo (bianca_bot_grok.py)
 4. Crie arquivo "requirements.txt" com:
    python-telegram-bot==20.7
-   anthropic==0.39.0
+   openai==1.12.0
+
 5. Crie arquivo "Procfile" com:
-   worker: python bianca_bot_unificado.py
+   worker: python bianca_bot_grok.py
 
 6. No Railway, configure:
    
@@ -36,12 +37,11 @@ OPÇÃO 2 - DEPLOY NO RAILWAY (24/7 NA NUVEM):
       Nome: TELEGRAM_TOKEN
       Valor: seu_token_do_botfather
       
-      Nome: ANTHROPIC_API_KEY
-      Valor: sua_chave_anthropic
+   
    
    🚀 B) START COMMAND:
       Vá em: Settings → Deploy → Start Command
-      Cole exatamente: python bianca_bot_unificado.py
+      Cole exatamente: python bianca_bot_grok.py
       Salve e faça Redeploy
       
 7. Deploy automático!
@@ -52,19 +52,19 @@ OPÇÃO 2 - DEPLOY NO RAILWAY (24/7 NA NUVEM):
 
 Copie este comando e cole no Railway (Settings → Deploy → Start Command):
 
-python bianca_bot_unificado.py
+python bianca_bot_grok.py
 
 ═══════════════════════════════════════════════════════════════════════════
 
 OBTENDO AS CREDENCIAIS:
 - Telegram Token: https://t.me/BotFather → /newbot
-- Anthropic API: https://console.anthropic.com/ → API Keys
+- Grok API Key: https://console.x.ai/ → API Keys
 
 ═══════════════════════════════════════════════════════════════════════════
 ✨ FUNCIONALIDADES INCLUÍDAS
 ═══════════════════════════════════════════════════════════════════════════
 
-✅ IA Conversacional (Claude) com personalidade enigmática
+✅ IA Conversacional (Grok) com personalidade enigmática
 ✅ Sistema Premium (R$ 14,99/7 dias)
 ✅ Limite Grátis (10 mensagens/dia)
 ✅ Detecção de Humor do usuário
@@ -101,8 +101,8 @@ from telegram.ext import (
     filters
 )
 
-# API da Anthropic (Claude)
-import anthropic
+# API do Grok (usando biblioteca OpenAI compatível)
+from openai import OpenAI
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -114,14 +114,7 @@ import anthropic
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 GROK_API_KEY = os.environ.get("GROK_API_KEY", "")
 
-# Se não usar variáveis de ambiente, descomente e configure abaixo:
-# TELEGRAM_TOKEN = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
-# ANTHROPIC_API_KEY = "sk-ant-api03-xxxxxxxxxxxxx"
 
-
-# ═══════════════════════════════════════════════════════════════════════════
-# ⚙️ CONFIGURAÇÕES GERAIS
-# ═══════════════════════════════════════════════════════════════════════════
 
 CONFIG = {
     "nome_bot": "Bianca",
@@ -425,11 +418,15 @@ class UserManager:
 # ═══════════════════════════════════════════════════════════════════════════
 
 class BiancaBot:
-    """Bot principal com IA"""
+    """Bot principal com IA Grok"""
     
-    def __init__(self, telegram_token: str, anthropic_api_key: str):
+    def __init__(self, telegram_token: str, grok_api_key: str):
         self.telegram_token = telegram_token
-        self.anthropic_client = anthropic.Anthropic(api_key=anthropic_api_key)
+        # Configura cliente Grok (usa biblioteca OpenAI compatível)
+        self.grok_client = OpenAI(
+            api_key=grok_api_key,
+            base_url="https://api.x.ai/v1"
+        )
         self.user_manager = UserManager()
     
     def _get_periodo_dia(self) -> tuple:
@@ -483,10 +480,14 @@ class BiancaBot:
         return prompt
     
     async def _get_ai_response(self, user_id: str, user_message: str) -> str:
-        """Obtém resposta da IA"""
+        """Obtém resposta da IA Grok"""
         user = self.user_manager.get_user(user_id)
         
-        messages = []
+        # Constrói histórico de mensagens
+        messages = [
+            {"role": "system", "content": self._build_system_prompt(user_id)}
+        ]
+        
         for msg in user["conversation_history"][-10:]:
             messages.append({
                 "role": msg["role"],
@@ -499,16 +500,17 @@ class BiancaBot:
         })
         
         try:
-            response = self.anthropic_client.messages.create(
-                model="claude-sonnet-4-20250514",
+            # Chama API do Grok
+            response = self.grok_client.chat.completions.create(
+                model="grok-beta",
+                messages=messages,
                 max_tokens=150,
-                system=self._build_system_prompt(user_id),
-                messages=messages
+                temperature=0.8
             )
             
-            return response.content[0].text
+            return response.choices[0].message.content
         except Exception as e:
-            print(f"Erro na API: {e}")
+            print(f"Erro na API Grok: {e}")
             return "Hm... tive um problema aqui. Me manda de novo? 🌙"
     
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -654,9 +656,10 @@ class BiancaBot:
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message))
         
         print("="*70)
-        print("🌙 BIANCA BOT INICIADA")
+        print("🌙 BIANCA BOT INICIADA (GROK AI)")
         print("="*70)
         print(f"✓ Bot: {CONFIG['nome_bot']}")
+        print(f"✓ IA: Grok (xAI)")
         print(f"✓ Limite grátis: {CONFIG['limite_diario_gratis']} mensagens/dia")
         print(f"✓ Premium: {CONFIG['preco_premium']} por {CONFIG['dias_premium']} dias")
         print("="*70)
@@ -681,7 +684,7 @@ def main():
         print()
         print("Configure o token de uma dessas formas:")
         print()
-        print("OPÇÃO 1 - Direto no código (linha 71):")
+        print("OPÇÃO 1 - Direto no código (linha 110):")
         print('  TELEGRAM_TOKEN = "123456789:ABCdef..."')
         print()
         print("OPÇÃO 2 - Variável de ambiente:")
@@ -694,23 +697,23 @@ def main():
         print("="*70)
         return
     
-    if not ANTHROPIC_API_KEY:
+    if not GROK_API_KEY:
         print("="*70)
-        print("❌ ERRO: ANTHROPIC_API_KEY não configurada!")
+        print("❌ ERRO: GROK_API_KEY não configurada!")
         print("="*70)
         print()
         print("Configure a chave de uma dessas formas:")
         print()
-        print("OPÇÃO 1 - Direto no código (linha 72):")
-        print('  ANTHROPIC_API_KEY = "sk-ant-api03-..."')
+        print("OPÇÃO 1 - Direto no código (linha 111):")
+        print('  GROK_API_KEY = "xai-..."')
         print()
         print("OPÇÃO 2 - Variável de ambiente:")
-        print("  export ANTHROPIC_API_KEY=sk-ant-api03-...")
+        print("  export GROK_API_KEY=xai-...")
         print()
         print("OPÇÃO 3 - Railway:")
-        print("  Variables → ANTHROPIC_API_KEY")
+        print("  Variables → GROK_API_KEY")
         print()
-        print("Obtenha em: https://console.anthropic.com/")
+        print("Obtenha em: https://console.x.ai/")
         print("="*70)
         return
     
@@ -718,10 +721,10 @@ def main():
     print()
     print("✅ Credenciais configuradas")
     print(f"✅ Token Telegram: {TELEGRAM_TOKEN[:10]}...")
-    print(f"✅ API Key Anthropic: {ANTHROPIC_API_KEY[:15]}...")
+    print(f"✅ API Key Grok: {GROK_API_KEY[:15]}...")
     print()
     
-    bot = BiancaBot(TELEGRAM_TOKEN, ANTHROPIC_API_KEY)
+    bot = BiancaBot(TELEGRAM_TOKEN, GROK_API_KEY)
     bot.run()
 
 
