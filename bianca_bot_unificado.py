@@ -17,7 +17,6 @@ from telegram.ext import (
     filters
 )
 
-from openai import OpenAI
 
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
