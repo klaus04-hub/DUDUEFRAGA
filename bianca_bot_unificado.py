@@ -38,50 +38,6 @@ OPÇÃO 2 - DEPLOY NO RAILWAY (24/7 NA NUVEM):
       Valor: seu_token_do_botfather
       
    
-   
-   🚀 B) START COMMAND:
-      Vá em: Settings → Deploy → Start Command
-      Cole exatamente: python bianca_bot_grok.py
-      Salve e faça Redeploy
-      
-7. Deploy automático!
-
-═══════════════════════════════════════════════════════════════════════════
-🚨 IMPORTANTE - COMANDO DE START PARA O RAILWAY:
-═══════════════════════════════════════════════════════════════════════════
-
-Copie este comando e cole no Railway (Settings → Deploy → Start Command):
-
-python bianca_bot_grok.py
-
-═══════════════════════════════════════════════════════════════════════════
-
-OBTENDO AS CREDENCIAIS:
-- Telegram Token: https://t.me/BotFather → /newbot
-- Grok API Key: https://console.x.ai/ → API Keys
-
-═══════════════════════════════════════════════════════════════════════════
-✨ FUNCIONALIDADES INCLUÍDAS
-═══════════════════════════════════════════════════════════════════════════
-
-✅ IA Conversacional (Grok) com personalidade enigmática
-✅ Sistema Premium (R$ 14,99/7 dias)
-✅ Limite Grátis (10 mensagens/dia)
-✅ Detecção de Humor do usuário
-✅ Gatilhos de Conversão inteligentes
-✅ Paywall para Conteúdo exclusivo
-✅ Memória de Conversas (15 mensagens)
-✅ Sistema de estatísticas
-✅ Suporte a variáveis de ambiente (Railway)
-
-COMANDOS DISPONÍVEIS:
-/start - Inicia conversa
-/premium - Info sobre assinatura
-/ativar - Ativa premium (teste)
-/stats - Suas estatísticas
-
-═══════════════════════════════════════════════════════════════════════════
-"""
 
 import os
 import json
@@ -114,7 +70,13 @@ from openai import OpenAI
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 GROK_API_KEY = os.environ.get("GROK_API_KEY", "")
 
+# Se não usar variáveis de ambiente, descomente e configure abaixo:
+# TELEGRAM_TOKEN = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
 
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚙️ CONFIGURAÇÕES GERAIS
+# ═══════════════════════════════════════════════════════════════════════════
 
 CONFIG = {
     "nome_bot": "Bianca",
@@ -730,5 +692,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
