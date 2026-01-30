@@ -1,43 +1,4 @@
-"""
-═══════════════════════════════════════════════════════════════════════════
-🌙 BIANCA BOT - TELEGRAM + IA COMPLETO (GROK/xAI)
-═══════════════════════════════════════════════════════════════════════════
 
-Bot de Companhia Virtual com IA (Grok/xAI)
-Sistema de Assinatura Premium Integrado
-
-ARQUIVO ÚNICO - TUDO EM UM SÓ LUGAR!
-
-═══════════════════════════════════════════════════════════════════════════
-📋 INSTRUÇÕES DE USO
-═══════════════════════════════════════════════════════════════════════════
-
-OPÇÃO 1 - LOCAL (SEU COMPUTADOR):
-1. Instale: pip install python-telegram-bot openai
-2. Configure os tokens abaixo (linhas 109-110)
-3. Execute: python bianca_bot_grok.py
-4. No Telegram, procure seu bot e digite /start
-
-OPÇÃO 2 - DEPLOY NO RAILWAY (24/7 NA NUVEM):
-1. Crie conta no Railway (railway.app)
-2. New Project → Empty Project
-3. Faça upload deste arquivo (bianca_bot_grok.py)
-4. Crie arquivo "requirements.txt" com:
-   python-telegram-bot==20.7
-   openai==1.12.0
-
-5. Crie arquivo "Procfile" com:
-   worker: python bianca_bot_grok.py
-
-6. No Railway, configure:
-   
-   ⚙️ A) VARIÁVEIS (Variables):
-      Adicione estas 2 variáveis:
-      
-      Nome: TELEGRAM_TOKEN
-      Valor: seu_token_do_botfather
-      
-   
 
 import os
 import json
@@ -46,7 +7,6 @@ import random
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
-# Imports do Telegram
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -57,42 +17,24 @@ from telegram.ext import (
     filters
 )
 
-# API do Grok (usando biblioteca OpenAI compatível)
 from openai import OpenAI
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# 🔑 CONFIGURAÇÃO - EDITE AQUI OU USE VARIÁVEIS DE AMBIENTE
-# ═══════════════════════════════════════════════════════════════════════════
-
-# Para uso local: edite diretamente aqui
-# Para Railway: deixe "" e configure nas variáveis de ambiente
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 GROK_API_KEY = os.environ.get("GROK_API_KEY", "")
 
-# Se não usar variáveis de ambiente, descomente e configure abaixo:
-# TELEGRAM_TOKEN = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-# ⚙️ CONFIGURAÇÕES GERAIS
-# ═══════════════════════════════════════════════════════════════════════════
 
 CONFIG = {
     "nome_bot": "Bianca",
     "idade": 24,
     "cidade": "Ribeirão Preto",
     "profissao": "Influencer",
-    
     "limite_diario_gratis": 10,
     "dias_premium": 7,
     "preco_premium": "R$ 14,99",
     "preco_desconto": "R$ 9,99",
-    
     "chave_pix": "seupix@email.com",
-    
     "max_memoria": 15,
-    
     "tempo_reengajamento": {
         "nivel_1": 2,
         "nivel_2": 24,
@@ -101,10 +43,6 @@ CONFIG = {
     }
 }
 
-
-# ═══════════════════════════════════════════════════════════════════════════
-# 🎭 PERSONA E PROMPT DA IA
-# ═══════════════════════════════════════════════════════════════════════════
 
 PERSONA_PROMPT = """Você é Bianca, 24 anos, misteriosa e sedutora. Nasceu em Ribeirão Preto, trabalha como Influencer.
 
@@ -157,10 +95,6 @@ CONTEXTO ATUAL:
 - Usuário: {status_usuario}
 """
 
-
-# ═══════════════════════════════════════════════════════════════════════════
-# 💬 MENSAGENS DO SISTEMA
-# ═══════════════════════════════════════════════════════════════════════════
 
 WELCOME_MESSAGE = """✨ Olá, estranho...
 
@@ -242,10 +176,6 @@ Chave PIX: {pix_key}
 Me manda o comprovante que libero na hora 🖤"""
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# 🎯 KEYWORDS PARA DETECÇÃO
-# ═══════════════════════════════════════════════════════════════════════════
-
 MOOD_KEYWORDS = {
     "triste": ["triste", "mal", "sozinho", "deprimido", "chorando", "ansiedade"],
     "flertando": ["linda", "gostosa", "bonita", "delicia", "tesão", "quero você"],
@@ -273,19 +203,12 @@ HOT_KEYWORDS = [
 ]
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# 💾 GERENCIAMENTO DE USUÁRIOS
-# ═══════════════════════════════════════════════════════════════════════════
-
 class UserManager:
-    """Gerencia dados dos usuários"""
-    
     def __init__(self):
         self.users_file = "users_data.json"
         self.users = self._load_users()
     
     def _load_users(self) -> Dict:
-        """Carrega dados dos usuários do arquivo"""
         if os.path.exists(self.users_file):
             try:
                 with open(self.users_file, 'r', encoding='utf-8') as f:
@@ -295,12 +218,10 @@ class UserManager:
         return {}
     
     def _save_users(self):
-        """Salva dados dos usuários no arquivo"""
         with open(self.users_file, 'w', encoding='utf-8') as f:
             json.dump(self.users, f, indent=2, ensure_ascii=False)
     
     def get_user(self, user_id: str) -> Dict:
-        """Retorna dados do usuário"""
         if user_id not in self.users:
             self.users[user_id] = {
                 "user_id": user_id,
@@ -321,13 +242,11 @@ class UserManager:
         return self.users[user_id]
     
     def update_user(self, user_id: str, data: Dict):
-        """Atualiza dados do usuário"""
         user = self.get_user(user_id)
         user.update(data)
         self._save_users()
     
     def add_message_to_history(self, user_id: str, role: str, content: str):
-        """Adiciona mensagem ao histórico"""
         user = self.get_user(user_id)
         user["conversation_history"].append({
             "role": role,
@@ -341,7 +260,6 @@ class UserManager:
         self._save_users()
     
     def increment_messages(self, user_id: str) -> int:
-        """Incrementa contador de mensagens"""
         user = self.get_user(user_id)
         user["messages_today"] += 1
         user["total_messages"] += 1
@@ -350,14 +268,12 @@ class UserManager:
         return user["messages_today"]
     
     def reset_daily_messages(self, user_id: str):
-        """Reseta contador diário"""
         user = self.get_user(user_id)
         user["messages_today"] = 0
         user["warned_low_messages"] = False
         self._save_users()
     
     def set_premium(self, user_id: str, days: int = 7):
-        """Define usuário como premium"""
         user = self.get_user(user_id)
         user["is_premium"] = True
         user["premium_until"] = (datetime.now() + timedelta(days=days)).isoformat()
@@ -365,7 +281,6 @@ class UserManager:
         self._save_users()
     
     def check_premium_expired(self, user_id: str) -> bool:
-        """Verifica se premium expirou"""
         user = self.get_user(user_id)
         if user["is_premium"] and user["premium_until"]:
             if datetime.fromisoformat(user["premium_until"]) < datetime.now():
@@ -375,16 +290,9 @@ class UserManager:
         return False
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# 🤖 BOT PRINCIPAL
-# ═══════════════════════════════════════════════════════════════════════════
-
 class BiancaBot:
-    """Bot principal com IA Grok"""
-    
     def __init__(self, telegram_token: str, grok_api_key: str):
         self.telegram_token = telegram_token
-        # Configura cliente Grok (usa biblioteca OpenAI compatível)
         self.grok_client = OpenAI(
             api_key=grok_api_key,
             base_url="https://api.x.ai/v1"
@@ -392,7 +300,6 @@ class BiancaBot:
         self.user_manager = UserManager()
     
     def _get_periodo_dia(self) -> tuple:
-        """Retorna período do dia e contexto"""
         hora = datetime.now().hour
         
         if 5 <= hora < 12:
@@ -405,7 +312,6 @@ class BiancaBot:
             return "madrugada", "Horas silenciosas, momento íntimo"
     
     def _detect_mood(self, message: str) -> Optional[str]:
-        """Detecta humor do usuário"""
         message_lower = message.lower()
         
         for mood, keywords in MOOD_KEYWORDS.items():
@@ -414,17 +320,14 @@ class BiancaBot:
         return None
     
     def _check_premium_triggers(self, message: str) -> bool:
-        """Verifica gatilhos de premium"""
         message_lower = message.lower()
         return any(trigger in message_lower for trigger in PREMIUM_TRIGGER_WORDS)
     
     def _check_hot_keywords(self, message: str) -> bool:
-        """Verifica keywords quentes"""
         message_lower = message.lower()
         return any(keyword in message_lower for keyword in HOT_KEYWORDS)
     
     def _build_system_prompt(self, user_id: str) -> str:
-        """Constrói prompt do sistema"""
         user = self.user_manager.get_user(user_id)
         periodo, contexto = self._get_periodo_dia()
         
@@ -442,10 +345,8 @@ class BiancaBot:
         return prompt
     
     async def _get_ai_response(self, user_id: str, user_message: str) -> str:
-        """Obtém resposta da IA Grok"""
         user = self.user_manager.get_user(user_id)
         
-        # Constrói histórico de mensagens
         messages = [
             {"role": "system", "content": self._build_system_prompt(user_id)}
         ]
@@ -462,7 +363,6 @@ class BiancaBot:
         })
         
         try:
-            # Chama API do Grok
             response = self.grok_client.chat.completions.create(
                 model="grok-beta",
                 messages=messages,
@@ -476,7 +376,6 @@ class BiancaBot:
             return "Hm... tive um problema aqui. Me manda de novo? 🌙"
     
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handler do /start"""
         user_id = str(update.effective_user.id)
         user = self.user_manager.get_user(user_id)
         
@@ -498,7 +397,6 @@ class BiancaBot:
                 await update.message.reply_text("Oi... voltou! 💫\n\nComo você tá?")
     
     async def button_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handler para botões"""
         query = update.callback_query
         await query.answer()
         
@@ -510,7 +408,6 @@ class BiancaBot:
             await self.send_premium_info(query.message, str(query.from_user.id))
     
     async def send_premium_info(self, message, user_id: str):
-        """Envia informações premium"""
         keyboard = [
             [InlineKeyboardButton("💳 Quero ser Premium", callback_data="premium_info")]
         ]
@@ -520,7 +417,6 @@ class BiancaBot:
         await message.reply_text(pix_msg, reply_markup=reply_markup)
     
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handler principal de mensagens"""
         user_id = str(update.effective_user.id)
         user_message = update.message.text
         
@@ -575,12 +471,10 @@ class BiancaBot:
         await update.message.reply_text(ai_response)
     
     async def premium_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handler do /premium"""
         user_id = str(update.effective_user.id)
         await self.send_premium_info(update.message, user_id)
     
     async def activate_premium_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handler do /ativar"""
         user_id = str(update.effective_user.id)
         
         self.user_manager.set_premium(user_id, CONFIG["dias_premium"])
@@ -588,7 +482,6 @@ class BiancaBot:
         await update.message.reply_text(PREMIUM_WELCOME)
     
     async def stats_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handler do /stats"""
         user_id = str(update.effective_user.id)
         user = self.user_manager.get_user(user_id)
         
@@ -607,7 +500,6 @@ class BiancaBot:
         await update.message.reply_text(stats)
     
     def run(self):
-        """Inicia o bot"""
         app = Application.builder().token(self.telegram_token).build()
         
         app.add_handler(CommandHandler("start", self.start_command))
@@ -625,66 +517,20 @@ class BiancaBot:
         print(f"✓ Limite grátis: {CONFIG['limite_diario_gratis']} mensagens/dia")
         print(f"✓ Premium: {CONFIG['preco_premium']} por {CONFIG['dias_premium']} dias")
         print("="*70)
-        print("Bot rodando... Pressione Ctrl+C para parar")
+        print("Bot rodando...")
         print("="*70)
         
         app.run_polling()
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# 🚀 EXECUÇÃO PRINCIPAL
-# ═══════════════════════════════════════════════════════════════════════════
-
 def main():
-    """Função principal"""
-    
-    # Validação
     if not TELEGRAM_TOKEN:
-        print("="*70)
-        print("❌ ERRO: TELEGRAM_TOKEN não configurado!")
-        print("="*70)
-        print()
-        print("Configure o token de uma dessas formas:")
-        print()
-        print("OPÇÃO 1 - Direto no código (linha 110):")
-        print('  TELEGRAM_TOKEN = "123456789:ABCdef..."')
-        print()
-        print("OPÇÃO 2 - Variável de ambiente:")
-        print("  export TELEGRAM_TOKEN=123456789:ABCdef...")
-        print()
-        print("OPÇÃO 3 - Railway:")
-        print("  Variables → TELEGRAM_TOKEN")
-        print()
-        print("Obtenha em: https://t.me/BotFather")
-        print("="*70)
+        print("ERRO: TELEGRAM_TOKEN não configurado!")
         return
     
     if not GROK_API_KEY:
-        print("="*70)
-        print("❌ ERRO: GROK_API_KEY não configurada!")
-        print("="*70)
-        print()
-        print("Configure a chave de uma dessas formas:")
-        print()
-        print("OPÇÃO 1 - Direto no código (linha 111):")
-        print('  GROK_API_KEY = "xai-..."')
-        print()
-        print("OPÇÃO 2 - Variável de ambiente:")
-        print("  export GROK_API_KEY=xai-...")
-        print()
-        print("OPÇÃO 3 - Railway:")
-        print("  Variables → GROK_API_KEY")
-        print()
-        print("Obtenha em: https://console.x.ai/")
-        print("="*70)
+        print("ERRO: GROK_API_KEY não configurada!")
         return
-    
-    # Inicia bot
-    print()
-    print("✅ Credenciais configuradas")
-    print(f"✅ Token Telegram: {TELEGRAM_TOKEN[:10]}...")
-    print(f"✅ API Key Grok: {GROK_API_KEY[:15]}...")
-    print()
     
     bot = BiancaBot(TELEGRAM_TOKEN, GROK_API_KEY)
     bot.run()
@@ -692,4 +538,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
